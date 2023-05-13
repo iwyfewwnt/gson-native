@@ -1,0 +1,44 @@
+name: Javadoc Deploy
+
+on:
+  release:
+    types: [released]
+
+  workflow_dispatch:
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup
+        uses: actions/setup-java@v3
+        with:
+          java-version: 8
+          distribution: corretto
+
+      - name: Build
+        run: mvn javadoc:javadoc -Pjavadoc
+
+      - name: Git Config
+        uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          git_config_global: true
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          git_tag_gpgsign: true
+
+      - name: Git Deploy
+        env:
+          GIT_DEPLOY_BRANCH: docs
+          GIT_DEPLOY_FOLDER: target/site/apidocs
+        run: |
+          git checkout --orphan $GIT_DEPLOY_BRANCH
+          git rm -rf .
+          git add -f $GIT_DEPLOY_FOLDER
+          git mv $GIT_DEPLOY_FOLDER/* .
+          git commit -m "$GITHUB_SHA"
+          git push -f origin $GIT_DEPLOY_BRANCH
