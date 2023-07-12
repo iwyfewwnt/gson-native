@@ -97,9 +97,6 @@ public final class GsonNativeTypeAdapterFactory implements TypeAdapterFactory {
 
 		return new TypeAdapter<T>() {
 
-			/**
-			 * {@inheritDoc}
-			 */
 			@Override
 			public void write(JsonWriter out, T value) throws IOException {
 				if (finalWriteReplaceMethod != null && value != null) {
@@ -113,9 +110,6 @@ public final class GsonNativeTypeAdapterFactory implements TypeAdapterFactory {
 				context.write(out, value);
 			}
 
-			/**
-			 * {@inheritDoc}
-			 */
 			@Override
 			public T read(JsonReader in) throws IOException {
 				T value = context.read(in);
